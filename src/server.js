@@ -1,4 +1,3 @@
-const axios = require('axios');
 const os = require('os');
 const crypto = require('crypto');
 const express = require('express');
@@ -1036,19 +1035,18 @@ const deleteFile = (filePath) => {
 };
 
 const generateRandomFileName = () => `streamflow_videodata_${crypto.randomBytes(16).toString('hex')}`;
-let ipAddress = 'localhost'; // Default IP (localhost) jika API gagal
+const ifaces = os.networkInterfaces();
+let ipAddress = 'localhost';
+for (const iface of Object.values(ifaces)) {
+  for (const alias of iface) {
+    if (alias.family === 'IPv4' && !alias.internal) {
+      ipAddress = alias.address;
+      break;
+    }
+  }
+  if (ipAddress !== 'localhost') break;
+}
 
-// Menggunakan API untuk mendapatkan IP publik
-axios.get('https://api.ipify.org?format=json')
-  .then(response => {
-    ipAddress = response.data.ip; // Ambil IP publik dari response
-    console.log(`IP publik Anda: ${ipAddress}`);
-  })
-  .catch(err => {
-    console.error('Gagal mendapatkan IP publik:', err);
-    ipAddress = 'localhost'; // Fallback ke localhost jika gagal
-    console.log(`Menggunakan IP fallback: ${ipAddress}`);
-  });
 
 async function generateThumbnail(videoPath, outputPath) {
   return new Promise((resolve, reject) => {
@@ -1460,7 +1458,7 @@ app.get('/api/drive-progress/:fileId', requireAuthAPI, (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`\x1b[32mStreamFlow berjalan\x1b[0m\nAkses aplikasi di \x1b[34mhttp://${ipAddress}:${PORT}\x1b[0m`);
   loadScheduledStreams();
 });
