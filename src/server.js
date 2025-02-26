@@ -1459,7 +1459,7 @@ app.get('/api/drive-progress/:fileId', requireAuthAPI, (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 50156;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\x1b[32mStreamFlow berjalan\x1b[0m\nAkses aplikasi di \x1b[34mhttp://${ipAddress}:${PORT}\x1b[0m`);
   loadScheduledStreams();
